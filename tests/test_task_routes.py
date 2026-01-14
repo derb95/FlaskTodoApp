@@ -73,24 +73,20 @@ class TestAddProjectTask(unittest.TestCase):
             self.assertIsNotNone(task)
             self.assertEqual(task.task, 'Write Tests')
 
-    def test_add_task_with_description(self):
+    def test_add_task_with_due_date(self):
         with self.app.app_context():
-            project = Project(name='Test Project')
+            project = Project(name='Test Project Due')
             db.session.add(project)
             db.session.commit()
             project_id = project.id
 
         response = self.client.post(
             f'/project/{project_id}/add_task',
-            data={'task': 'Write Tests with Description', 'description': 'Detailed task description'}
+            data={'task': 'Due Task', 'due_date': '2026-05-20'}
         )
         self.assertEqual(response.status_code, 302)
 
         with self.app.app_context():
-            task = Task.query.filter_by(
-                project_id=project_id,
-                task='Write Tests with Description'
-            ).first()
+            task = Task.query.filter_by(project_id=project_id, task='Due Task').first()
             self.assertIsNotNone(task)
-            self.assertEqual(task.task, 'Write Tests with Description')
-            self.assertEqual(task.description, 'Detailed task description')
+            self.assertEqual(task.due_date.strftime('%Y-%m-%d'), '2026-05-20')

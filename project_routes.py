@@ -14,6 +14,7 @@ logger = logging.getLogger(__name__)
 # Define reusable constants
 ERROR_CREATING_PROJECT = "An error occurred while creating the project"
 ERROR_DELETING_PROJECT = "An error occurred while deleting the project"
+ERROR_UPDATING_PROJECT = "An error occurred while updating the project"
 ERROR_FETCHING_TASKS = "An error occurred while fetching tasks for the project"
 
 TEMPLATE_PROJECT_TASKS = "project_tasks.html"
@@ -34,7 +35,7 @@ def create_project():
         logger.info("Project '%s' successfully created.", project_name)
     except Exception as e:
         db.session.rollback()
-        logger.info(ERROR_CREATING_PROJECT, e)
+        logger.error("%s: %s", ERROR_CREATING_PROJECT, e, exc_info=True)
         return ERROR_CREATING_PROJECT, 500
 
     return redirect(url_for('routes.home'))
@@ -56,12 +57,33 @@ def delete_project(project_id):
     return redirect(url_for('routes.home'))
 
 
+@routes_bp.route('/update_project/<int:project_id>', methods=['POST'])
+def update_project(project_id):
+    project_name = request.form.get('project_name')
+    if not project_name:
+        logger.warning("Project name is missing for update of project ID: %d", project_id)
+        return redirect(url_for('routes.home'))
+
+    try:
+        logger.info("Updating project ID %d with new name: %s", project_id, project_name)
+        project_record = Project.query.get_or_404(project_id)
+        project_record.name = project_name
+        db.session.commit()
+        logger.info("Project ID %d successfully updated.", project_id)
+    except Exception as e:
+        db.session.rollback()
+        logger.error("%s: %s", ERROR_UPDATING_PROJECT, e, exc_info=True)
+        return ERROR_UPDATING_PROJECT, 500
+
+    return redirect(url_for('routes.home'))
+
+
 @routes_bp.route('/project/<int:project_id>')
 def project_tasks(project_id):
     try:
         logger.info("Fetching tasks for project with ID: %d", project_id)
         project_record = Project.query.get_or_404(project_id)
-        tasks = Task.query.filter_by(project_id=project_id).all()
+        tasks = Task.query.filter_by(project_id=project_id).order_by(Task.due_date.asc().nullslast()).all()
         logger.info("Found %d tasks for project ID: %d", len(tasks), project_id)
     except Exception as e:
         logger.error("%s: %s", ERROR_FETCHING_TASKS, e, exc_info=True)

@@ -57,3 +57,12 @@ input {
     background-color: #73c6b6;
     border-color: #4daf90;
 }
+
+/* Chevron rotation for collapse */
+.card-header[aria-expanded="false"] .fa-chevron-down {
+    transform: rotate(-90deg);
+}
+
+.fa-chevron-down {
+    transition: transform 0.3s ease;
+}
