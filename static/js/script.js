@@ -1,6 +1,28 @@
 document.addEventListener("DOMContentLoaded", () => {
+    // Check for saved theme on load
+    const savedTheme = localStorage.getItem('theme');
+    const btn = document.getElementById('dark-mode-toggle');
+    if (savedTheme === 'dark') {
+        document.body.classList.add('dark-mode');
+        if (btn) btn.innerHTML = '<i class="fas fa-sun"></i> Light Mode';
+    }
     console.log("Flask Todo App Loaded!");
 });
+
+function toggleDarkMode() {
+    const body = document.body;
+    const btn = document.getElementById('dark-mode-toggle');
+    body.classList.toggle('dark-mode');
+    
+    // Save preference to localStorage and update button
+    if (body.classList.contains('dark-mode')) {
+        localStorage.setItem('theme', 'dark');
+        if (btn) btn.innerHTML = '<i class="fas fa-sun"></i> Light Mode';
+    } else {
+        localStorage.setItem('theme', 'light');
+        if (btn) btn.innerHTML = '<i class="fas fa-moon"></i> Dark Mode';
+    }
+}
 
 function editProjectName(projectId, currentName) {
     // Hide the project name link and pencil icon

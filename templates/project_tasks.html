@@ -9,6 +9,9 @@
     <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
 </head>
 <body>
+<button id="dark-mode-toggle" class="btn btn-outline-secondary btn-sm" onclick="toggleDarkMode()">
+    <i class="fas fa-moon"></i> Dark Mode
+</button>
 <div class="container">
     <h1>Tasks in "{{ project.name }}"</h1>
     <div class="d-flex justify-content-between align-items-center mb-4">
